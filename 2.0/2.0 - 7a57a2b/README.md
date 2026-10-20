@@ -1,3 +1,7 @@
+## Android port
+
+See [ANDROID.md](ANDROID.md) for touch controls, APK builds, requirements and known differences.
+
 
 ## Powered by a heavily modified version of Kade Engine!
 ![KadeEngineLogo](https://user-images.githubusercontent.com/26305836/110529589-4b4eb600-80ce-11eb-9c44-e899118b0bf0.png)

@@ -4,9 +4,13 @@ import flixel.FlxState;
 
 class CrasherState extends FlxState
 {
-    override public function create()
-    {
-        super.create();
-        System.exit(0);
-    }
+	override public function create()
+	{
+		super.create();
+		#if android
+		FlxG.switchState(new MainMenuState());
+		#else
+		System.exit(0);
+		#end
+	}
 }

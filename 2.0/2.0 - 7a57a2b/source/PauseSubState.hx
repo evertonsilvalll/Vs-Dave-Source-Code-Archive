@@ -84,6 +84,14 @@ class PauseSubState extends MusicBeatSubstate
 
 		super.update(elapsed);
 
+		#if android
+		if (controls.BACK)
+		{
+			close();
+			return;
+		}
+		#end
+
 		var upP = controls.UP_P;
 		var downP = controls.DOWN_P;
 		var accepted = controls.ACCEPT;

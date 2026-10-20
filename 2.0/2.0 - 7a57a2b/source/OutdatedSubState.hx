@@ -31,6 +31,11 @@ class OutdatedSubState extends MusicBeatState
 				"Hello! \nThis mod utilizes shaders that may be of disturbance to some. \nIf you wish to disable these, \npress N, otherwise press Y. You can change this in options. \n Also, Supernovae and Glitch are not meant to be taken seriously and are not composed by me. \n Supernovae is by ArchWk, and Glitch is by The Boneyard.",
 				32);
 		}
+		#if android
+		txt.text = "This mod contains flashing shader effects.\n"
+			+ (FlxG.save.data.begin_thing == true ? "Tap OK to continue." : "Tap OK to enable effects, or BACK to disable them.")
+			+ "\nYou can change Eyesores in Options at any time.";
+		#end
 		txt.setFormat("Comic Sans MS Bold", 32, FlxColor.WHITE, CENTER);
 		txt.screenCenter();
 		txt.antialiasing = true;
@@ -39,24 +44,30 @@ class OutdatedSubState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		if (controls.PAUSE && FlxG.save.data.begin_thing == true)
+		if (controls.ACCEPT && FlxG.save.data.begin_thing == true)
 		{
 			leftState = true;
+			FlxG.save.flush();
 			FlxG.switchState(new MainMenuState());
+			return;
 		}
-		if (FlxG.keys.justPressed.Y && FlxG.save.data.begin_thing != true)
+		if ((FlxG.keys.justPressed.Y #if android || controls.ACCEPT #end) && FlxG.save.data.begin_thing != true)
 		{
 			FlxG.save.data.begin_thing = true;
 			FlxG.save.data.eyesores = true;
 			leftState = true;
+			FlxG.save.flush();
 			FlxG.switchState(new MainMenuState());
+			return;
 		}
-		if (FlxG.keys.justPressed.N && FlxG.save.data.begin_thing != true)
+		if ((FlxG.keys.justPressed.N #if android || controls.BACK #end) && FlxG.save.data.begin_thing != true)
 		{
 			FlxG.save.data.begin_thing = true;
 			FlxG.save.data.eyesores = false;
 			leftState = true;
+			FlxG.save.flush();
 			FlxG.switchState(new MainMenuState());
+			return;
 		}
 		super.update(elapsed);
 	}

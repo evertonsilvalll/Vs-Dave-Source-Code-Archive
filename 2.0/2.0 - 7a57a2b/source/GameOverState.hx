@@ -33,7 +33,7 @@ class GameOverState extends FlxTransitionableState
 		loser.antialiasing = true;
 		add(loser);
 
-		var bf:Boyfriend = new Boyfriend(bfX, bfY,charr);
+		var bf:Boyfriend = new Boyfriend(bfX, bfY, charr);
 		// bf.scrollFactor.set();
 		add(bf);
 		bf.playAnim('firstDeath');
@@ -59,7 +59,7 @@ class GameOverState extends FlxTransitionableState
 
 	override function update(elapsed:Float)
 	{
-		var pressed:Bool = FlxG.keys.justPressed.ANY;
+		var pressed:Bool = FlxG.keys.justPressed.ANY || PlayerSettings.player1.controls.ACCEPT;
 
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 
@@ -68,8 +68,6 @@ class GameOverState extends FlxTransitionableState
 			if (gamepad.justPressed.ANY)
 				pressed = true;
 		}
-
-		pressed = false;
 
 		if (pressed && !fading)
 		{

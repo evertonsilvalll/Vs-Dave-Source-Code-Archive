@@ -2,7 +2,16 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin' | Vs Dave & Bambi V2.0" file="VsDave" packageName="com.ninjamuffin99.funkin" package="com.ninjamuffin99.funkin" main="Main" version="0.2.7.1" company="ninjamuffin99" />
+	<app unless="android" title="Friday Night Funkin' | Vs Dave &amp; Bambi V2.0" file="VsDave" packageName="com.ninjamuffin99.funkin" package="com.ninjamuffin99.funkin" main="Main" version="0.2.7.1" company="ninjamuffin99" />
+	<app if="android" title="Vs Dave and Bambi 2.0" file="VsDave" package="org.vsdave.android.v2" main="Main" version="2.0.0" company="VsDave" />
+	<section if="android">
+		<set name="ASSET_ROOT" value="android-assets" />
+		<config:android minimum-sdk-version="21" target-sdk-version="28" build-tools-version="30.0.3" />
+		<config:android gradle-version="7.5.1" gradle-plugin="7.4.2" />
+		<architecture name="arm64" />
+		<template path="android/templates/android/template/build.gradle" rename="build.gradle" />
+	</section>
+	<set name="ASSET_ROOT" value="assets" unless="android" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -40,11 +49,13 @@
 
 	<classpath name="source" />
 
-	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
-	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/preload" rename="assets" exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/preload" rename="assets" exclude="*.mp3" unless="web"/>
 	
 	<!-- <define name="PRELOAD_ALL" /> -->
-	<define name="PRELOAD_ALL" unless="web" />
+	<section unless="android">
+		<define name="PRELOAD_ALL" unless="web" />
+	</section>
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
 	
 	<section if="PRELOAD_ALL">
@@ -62,8 +73,10 @@
 	</section>
 	
 	<section if="NO_PRELOAD_ALL">
-		<library name="songs"    preload="false" />
-		<library name="shared"   preload="false" />
+		<library name="songs"    preload="false" unless="android" />
+		<library name="songs" preload="true" if="android" />
+		<library name="shared"   preload="false" unless="android" />
+		<library name="shared" preload="true" if="android" />
 		<library name="tutorial" preload="false" />
 		<library name="week1"    preload="false" />
 		<library name="week2"    preload="false" />
@@ -75,26 +88,26 @@
 		<library name="week8"    preload="false" />
 	</section>
 	
-	<assets path="assets/songs"    library="songs"    exclude="*.ogg" if="web"/>
-	<assets path="assets/songs"    library="songs"    exclude="*.mp3" unless="web"/>
-	<assets path="assets/shared"   library="shared"   exclude="*.ogg" if="web"/>
-	<assets path="assets/shared"   library="shared"   exclude="*.mp3" unless="web"/>
-	<assets path="assets/tutorial" library="tutorial" exclude="*.ogg" if="web"/>
-	<assets path="assets/tutorial" library="tutorial" exclude="*.mp3" unless="web"/>
-	<assets path="assets/week1"    library="week1"    exclude="*.ogg" if="web"/>
-	<assets path="assets/week1"    library="week1"    exclude="*.mp3" unless="web"/>
-	<assets path="assets/week2"    library="week2"    exclude="*.ogg" if="web"/>
-	<assets path="assets/week2"    library="week2"    exclude="*.mp3" unless="web"/>
-	<assets path="assets/week3"    library="week3"    exclude="*.ogg" if="web"/>
-	<assets path="assets/week3"    library="week3"    exclude="*.mp3" unless="web"/>
-	<assets path="assets/week4"    library="week4"    exclude="*.ogg" if="web"/>
-	<assets path="assets/week4"    library="week4"    exclude="*.mp3" unless="web"/>
-	<assets path="assets/week5"    library="week5"    exclude="*.ogg" if="web"/>
-	<assets path="assets/week5"    library="week5"    exclude="*.mp3" unless="web"/>
-	<assets path="assets/week6"    library="week6"    exclude="*.ogg" if="web"/>
-	<assets path="assets/week6"    library="week6"    exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/songs" rename="assets/songs"    library="songs"    exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/songs" rename="assets/songs"    library="songs"    exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/shared" rename="assets/shared"   library="shared"   exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/shared" rename="assets/shared"   library="shared"   exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/tutorial" rename="assets/tutorial" library="tutorial" exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/tutorial" rename="assets/tutorial" library="tutorial" exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/week1" rename="assets/week1"    library="week1"    exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/week1" rename="assets/week1"    library="week1"    exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/week2" rename="assets/week2"    library="week2"    exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/week2" rename="assets/week2"    library="week2"    exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/week3" rename="assets/week3"    library="week3"    exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/week3" rename="assets/week3"    library="week3"    exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/week4" rename="assets/week4"    library="week4"    exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/week4" rename="assets/week4"    library="week4"    exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/week5" rename="assets/week5"    library="week5"    exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/week5" rename="assets/week5"    library="week5"    exclude="*.mp3" unless="web"/>
+	<assets path="${ASSET_ROOT}/week6" rename="assets/week6"    library="week6"    exclude="*.ogg" if="web"/>
+	<assets path="${ASSET_ROOT}/week6" rename="assets/week6"    library="week6"    exclude="*.mp3" unless="web"/>
 	
-	<assets path='example_mods' rename='mods' embed='false'/>
+	<assets path='example_mods' rename='mods' embed='false' unless='android'/>
 	<assets path='art/readme.txt' rename='PLEASE READ.txt' />
 	<!-- <template path='mods' /> -->
 	
@@ -105,7 +118,7 @@
 		THEN UHHH I USED THE NAME OF THE FONT WITH SETFORMAT() ON THE TEXT!!!
 		NOT USING A DIRECT THING TO THE ASSET!!!
 	-->
-	<assets path="assets/fonts" embed='true'/>
+	<assets path="${ASSET_ROOT}/fonts" rename="assets/fonts" embed='true'/>
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
@@ -120,9 +133,9 @@
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
-	<haxelib name="newgrounds"/>
+	<haxelib name="newgrounds" unless="android"/>
 	<haxelib name="faxe" if='switch'/>
-	<haxelib name="polymod"/>
+	<haxelib name="polymod" unless="android"/>
 	<haxelib name="discord_rpc" if="desktop"/>
 	<setenv name="next" />
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->

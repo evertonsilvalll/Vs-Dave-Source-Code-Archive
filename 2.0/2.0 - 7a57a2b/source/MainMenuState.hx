@@ -12,7 +12,9 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+#if !android
 import io.newgrounds.NG;
+#end
 import lime.app.Application;
 import Discord.DiscordClient;
 
@@ -43,8 +45,8 @@ class MainMenuState extends MusicBeatState
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
-	public static var bgPaths:Array<String> = 
-	[
+
+	public static var bgPaths:Array<String> = [
 		'backgrounds/SUSSUS AMOGUS',
 		'backgrounds/SwagnotrllyTheMod',
 		'backgrounds/Olyantwo',
@@ -62,7 +64,7 @@ class MainMenuState extends MusicBeatState
 		}
 
 		persistentUpdate = persistentDraw = true;
-		
+
 		if (FlxG.save.data.eyesores == null)
 		{
 			FlxG.save.data.eyesores = true;
@@ -72,9 +74,9 @@ class MainMenuState extends MusicBeatState
 
 		if (FlxG.save.data.unlockedcharacters == null)
 		{
-			FlxG.save.data.unlockedcharacters = [true,true,false,false,false,false];
+			FlxG.save.data.unlockedcharacters = [true, true, false, false, false, false];
 		}
-		
+
 		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(randomizeBG());
 		bg.scrollFactor.set();
 		bg.setGraphicSize(Std.int(bg.width * 1.1));
@@ -103,7 +105,7 @@ class MainMenuState extends MusicBeatState
 		add(camFollow);
 
 		FlxG.camera.follow(camFollow, null, 0.06);
-		
+
 		camFollow.setPosition(640, 150.5);
 		for (i in 0...optionShit.length)
 		{
@@ -118,11 +120,14 @@ class MainMenuState extends MusicBeatState
 			menuItem.scrollFactor.set(0, 1);
 			menuItem.antialiasing = true;
 			if (firstStart)
-				FlxTween.tween(menuItem,{y: 60 + (i * 160)},1 + (i * 0.25) ,{ease: FlxEase.expoInOut, onComplete: function(flxTween:FlxTween) 
+				FlxTween.tween(menuItem, {y: 60 + (i * 160)}, 1 + (i * 0.25), {
+					ease: FlxEase.expoInOut,
+					onComplete: function(flxTween:FlxTween)
 					{
-						finishedFunnyMove = true; 
+						finishedFunnyMove = true;
 						changeItem();
-					}});
+					}
+				});
 			else
 				menuItem.y = 60 + (i * 160);
 		}
@@ -135,7 +140,6 @@ class MainMenuState extends MusicBeatState
 		add(versionShit);
 
 		// NG.core.calls.event.logEvent('swag').send();
-
 
 		if (FlxG.save.data.dfjk)
 			controls.setKeyboardScheme(KeyboardScheme.Solo, true);
@@ -217,7 +221,6 @@ class MainMenuState extends MusicBeatState
 						});
 					}
 				});
-				
 			}
 		}
 
@@ -232,7 +235,6 @@ class MainMenuState extends MusicBeatState
 	override function beatHit()
 	{
 		super.beatHit();
-		
 	}
 
 	function changeItem(huh:Int = 0)
@@ -244,7 +246,7 @@ class MainMenuState extends MusicBeatState
 			if (curSelected >= menuItems.length)
 				curSelected = 0;
 			if (curSelected < 0)
-				curSelected = menuItems.length - 1;	
+				curSelected = menuItems.length - 1;
 		}
 
 		menuItems.forEach(function(spr:FlxSprite)
@@ -260,6 +262,7 @@ class MainMenuState extends MusicBeatState
 			spr.updateHitbox();
 		});
 	}
+
 	public static function randomizeBG():flixel.system.FlxAssets.FlxGraphicAsset
 	{
 		var chance:Int = FlxG.random.int(0, bgPaths.length - 1);

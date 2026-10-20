@@ -248,7 +248,7 @@ class PlayState extends MusicBeatState
 			+ songScore
 			+ " | Misses: "
 			+ misses, iconRPC);
-		
+
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
@@ -689,12 +689,18 @@ class PlayState extends MusicBeatState
 				curbg = bg;
 			}
 		}
-		else if(SONG.song.toLowerCase() == 'old-insanity')
+		else if (SONG.song.toLowerCase() == 'old-insanity')
 		{
 			var bg:FlxSprite = new FlxSprite(-600, -200).loadGraphic(Paths.image('dave/daveoldbg'));
 			add(bg);
 		}
-		else if (SONG.song.toLowerCase() == 'blocked' || SONG.song.toLowerCase() == 'corn-theft' || SONG.song.toLowerCase() == 'maze' || SONG.song.toLowerCase() == 'old-corn-theft' || SONG.song.toLowerCase() == 'old-maze' || SONG.song.toLowerCase() == 'screwed' || SONG.song.toLowerCase() == 'splitathon')
+		else if (SONG.song.toLowerCase() == 'blocked'
+			|| SONG.song.toLowerCase() == 'corn-theft'
+			|| SONG.song.toLowerCase() == 'maze'
+			|| SONG.song.toLowerCase() == 'old-corn-theft'
+			|| SONG.song.toLowerCase() == 'old-maze'
+			|| SONG.song.toLowerCase() == 'screwed'
+			|| SONG.song.toLowerCase() == 'splitathon')
 		{
 			defaultCamZoom = 0.9;
 			curStage = SONG.song.toLowerCase() == 'splitathon' ? 'bambiFarmNight' : 'bambiFarm';
@@ -715,28 +721,28 @@ class PlayState extends MusicBeatState
 			farm.antialiasing = true;
 			farm.scrollFactor.set(0.9, 0.9);
 			farm.active = false;
-			
+
 			var foreground:FlxSprite = new FlxSprite(-400, 600).loadGraphic(Paths.image('bambi/grass lands'));
 			foreground.antialiasing = true;
 			foreground.scrollFactor.set(1, 1);
 			foreground.active = false;
-			
+
 			var cornSet:FlxSprite = new FlxSprite(-350, 325).loadGraphic(Paths.image('bambi/Cornys'));
 			cornSet.antialiasing = true;
 			cornSet.scrollFactor.set(1, 1);
 			cornSet.active = false;
-			
+
 			var cornSet2:FlxSprite = new FlxSprite(1050, 325).loadGraphic(Paths.image('bambi/Cornys'));
 			cornSet2.antialiasing = true;
 			cornSet2.scrollFactor.set(1, 1);
 			cornSet2.active = false;
-			
+
 			var fence:FlxSprite = new FlxSprite(-350, 450).loadGraphic(Paths.image('bambi/crazy fences'));
 			fence.antialiasing = true;
 			fence.scrollFactor.set(0.98, 0.98);
 			fence.active = false;
 
-			var sign:FlxSprite = new FlxSprite(0, 500).loadGraphic(Paths.image('bambi/sign'));
+			var sign:FlxSprite = new FlxSprite(0, 500).loadGraphic(Paths.image('bambi/Sign'));
 			sign.antialiasing = true;
 			sign.scrollFactor.set(1, 1);
 			sign.active = false;
@@ -1138,10 +1144,12 @@ class PlayState extends MusicBeatState
 		}
 		// Add Kade Engine watermark
 		var kadeEngineWatermark = new FlxText(4, textYPos, 0,
-		SONG.song
-		+ " "
-		+ (curSong.toLowerCase() != 'splitathon' ? (storyDifficulty == 3 ? "Unnerfed" : storyDifficulty == 2 ? "Hard" : storyDifficulty == 1 ? "Normal" : "Easy") : "FINAL")
-		+ " - Dave Engine(KE 1.2)", 16);
+			SONG.song
+			+ " "
+			+
+			(curSong.toLowerCase() != 'splitathon' ? (storyDifficulty == 3 ? "Unnerfed" : storyDifficulty == 2 ? "Hard" : storyDifficulty == 1 ? "Normal" : "Easy") : "FINAL")
+			+ " - Dave Engine(KE 1.2)",
+			16);
 		kadeEngineWatermark.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		kadeEngineWatermark.scrollFactor.set();
 		add(kadeEngineWatermark);
@@ -1822,26 +1830,26 @@ class PlayState extends MusicBeatState
 			paused = false;
 
 			if (startTimer.finished)
-				{
-					DiscordClient.changePresence(detailsText
-						+ " "
-						+ SONG.song
-						+ " ("
-						+ storyDifficultyText
-						+ ") ",
-						"\nAcc: "
-						+ truncateFloat(accuracy, 2)
-						+ "% | Score: "
-						+ songScore
-						+ " | Misses: "
-						+ misses, iconRPC, true,
-						FlxG.sound.music.length
-						- Conductor.songPosition);
-				}
-				else
-				{
-					DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ") ", iconRPC);
-				}
+			{
+				DiscordClient.changePresence(detailsText
+					+ " "
+					+ SONG.song
+					+ " ("
+					+ storyDifficultyText
+					+ ") ",
+					"\nAcc: "
+					+ truncateFloat(accuracy, 2)
+					+ "% | Score: "
+					+ songScore
+					+ " | Misses: "
+					+ misses, iconRPC, true,
+					FlxG.sound.music.length
+					- Conductor.songPosition);
+			}
+			else
+			{
+				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ") ", iconRPC);
+			}
 		}
 
 		super.closeSubState();
@@ -1870,6 +1878,9 @@ class PlayState extends MusicBeatState
 			+ misses, iconRPC);
 	}
 
+	#if android
+	private var screenFilterActive:Bool = false;
+	#end
 	private var paused:Bool = false;
 	var startedCountdown:Bool = false;
 	var canPause:Bool = true;
@@ -1912,7 +1923,17 @@ class PlayState extends MusicBeatState
 			});
 		}
 
-		FlxG.camera.setFilters([new ShaderFilter(screenshader.shader)]); // this is very stupid but doesn't effect memory all that much so
+		#if android
+		// Only install the expensive full-screen effect while it is visible.
+		var useScreenFilter = shakeCam && eyesoreson;
+		if (useScreenFilter != screenFilterActive)
+		{
+			screenFilterActive = useScreenFilter;
+			FlxG.camera.setFilters(useScreenFilter ? [new ShaderFilter(screenshader.shader)] : []);
+		}
+		#else
+		FlxG.camera.setFilters([new ShaderFilter(screenshader.shader)]);
+		#end
 		if (shakeCam && eyesoreson)
 		{
 			// var shad = cast(FlxG.camera.screen.shader,Shaders.PulseShader);
@@ -1982,11 +2003,11 @@ class PlayState extends MusicBeatState
 					iconP2.animation.play("dave", true);
 			}
 		}
-		//4736
-		//4800
-		//5824
-		//6080
-		//8384
+		// 4736
+		// 4800
+		// 5824
+		// 6080
+		// 8384
 		if (SONG.song.toLowerCase() == 'insanity')
 		{
 			switch (curStep)
@@ -2026,7 +2047,6 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-
 		switch (curStage)
 		{
 			case 'philly':
@@ -2053,7 +2073,7 @@ class PlayState extends MusicBeatState
 		{
 			scoreTxt.text = "Score:" + songScore + " | Misses:" + misses + " | Accuracy:" + truncateFloat(accuracy, 2) + "% ";
 		}
-		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
+		if (controls.PAUSE && startedCountdown && canPause)
 		{
 			persistentUpdate = false;
 			persistentDraw = true;
@@ -2091,8 +2111,8 @@ class PlayState extends MusicBeatState
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
 
-		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, 0.8)),Std.int(FlxMath.lerp(150, iconP1.height, 0.8)));
-		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, 0.8)),Std.int(FlxMath.lerp(150, iconP2.height, 0.8)));
+		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, 0.8)), Std.int(FlxMath.lerp(150, iconP1.height, 0.8)));
+		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, 0.8)), Std.int(FlxMath.lerp(150, iconP2.height, 0.8)));
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
@@ -2250,7 +2270,7 @@ class PlayState extends MusicBeatState
 				openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition()
 					.y, characteroverride == "bf" || characteroverride == "none" ? SONG.player1 : characteroverride));
 
-					DiscordClient.changePresence("GAME OVER -- "
+				DiscordClient.changePresence("GAME OVER -- "
 					+ SONG.song
 					+ " ("
 					+ storyDifficultyText
@@ -2271,7 +2291,11 @@ class PlayState extends MusicBeatState
 						|| SONG.song.toLowerCase() == "maze")
 					{
 						FlxG.openURL("https://www.youtube.com/watch?v=eTJOdgDzD64");
+						#if android
+						FlxG.switchState(new MainMenuState());
+						#else
 						System.exit(0);
+						#end
 					}
 					else
 					{
@@ -2283,7 +2307,7 @@ class PlayState extends MusicBeatState
 					openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition()
 						.y, characteroverride == "bf" || characteroverride == "none" ? SONG.player1 : characteroverride));
 
-						DiscordClient.changePresence("GAME OVER -- "
+					DiscordClient.changePresence("GAME OVER -- "
 						+ SONG.song
 						+ " ("
 						+ storyDifficultyText
@@ -3273,10 +3297,10 @@ class PlayState extends MusicBeatState
 	{
 		if (!note.wasGoodHit)
 		{
-			if(note.noteStyle == 'phone')
-				{
-					health -= 0.8;
-				}
+			if (note.noteStyle == 'phone')
+			{
+				health -= 0.8;
+			}
 			if (!note.isSustainNote)
 			{
 				popUpScore(note.strumTime, note.noteData);
@@ -3285,7 +3309,6 @@ class PlayState extends MusicBeatState
 					FlxG.sound.play(Paths.sound('note_click'));
 				}
 				combo += 1;
-
 			}
 			else
 				totalNotesHit += 1;
@@ -3552,9 +3575,9 @@ class PlayState extends MusicBeatState
 
 		var funny:Float = (healthBar.percent * 0.01) + 0.01;
 
-		//health icon bounce but epic
-		iconP1.setGraphicSize(Std.int(iconP1.width + (50 * funny)),Std.int(iconP2.height - (25 * funny)));
-		iconP2.setGraphicSize(Std.int(iconP2.width + (50 * (2 - funny))),Std.int(iconP2.height - (25 * (2 - funny))));
+		// health icon bounce but epic
+		iconP1.setGraphicSize(Std.int(iconP1.width + (50 * funny)), Std.int(iconP2.height - (25 * funny)));
+		iconP2.setGraphicSize(Std.int(iconP2.width + (50 * (2 - funny))), Std.int(iconP2.height - (25 * (2 - funny))));
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
@@ -3667,7 +3690,7 @@ class PlayState extends MusicBeatState
 
 	public function addSplitathonChar(char:String):Void
 	{
-		boyfriend.stunned = true; //hopefully this stun stuff should prevent BF from randomly missing a note
+		boyfriend.stunned = true; // hopefully this stun stuff should prevent BF from randomly missing a note
 		remove(dad);
 		dad = new Character(100, 100, char);
 		add(dad);
@@ -3688,9 +3711,9 @@ class PlayState extends MusicBeatState
 		boyfriend.stunned = false;
 	}
 
-	public function preload(graphic:String) //preload assets
+	public function preload(graphic:String) // preload assets
 	{
-		var newthing:FlxSprite = new FlxSprite(1000,-1000).loadGraphic(Paths.image(graphic));
+		var newthing:FlxSprite = new FlxSprite(1000, -1000).loadGraphic(Paths.image(graphic));
 		if (boyfriend != null)
 		{
 			boyfriend.stunned = true;
@@ -3702,7 +3725,6 @@ class PlayState extends MusicBeatState
 			boyfriend.stunned = false;
 		}
 	}
-
 
 	public function splitathonExpression(expression:String, x:Float, y:Float):Void
 	{

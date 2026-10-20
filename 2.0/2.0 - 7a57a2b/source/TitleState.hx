@@ -20,7 +20,9 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+#if !android
 import io.newgrounds.NG;
+#end
 import lime.app.Application;
 import openfl.Assets;
 import Discord.DiscordClient;
@@ -48,14 +50,14 @@ class TitleState extends MusicBeatState
 		#if polymod
 		polymod.Polymod.init({modRoot: "mods", dirs: ['introMod']});
 		#end
-		
-		#if sys
+
+		#if desktop
 		if (!sys.FileSystem.exists(Sys.getCwd() + "\\assets\\replays"))
 			sys.FileSystem.createDirectory(Sys.getCwd() + "\\assets\\replays");
 		#end
 
 		fun = FlxG.random.int(0, 999);
-		if(fun == 1)
+		if (fun == 1)
 		{
 			LoadingState.loadAndSwitchState(new SusState());
 		}
@@ -76,7 +78,7 @@ class TitleState extends MusicBeatState
 		var ng:NGio = new NGio(APIStuff.API, APIStuff.EncKey);
 		trace('NEWGROUNDS LOL');
 		#end
-			
+
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 
 		SaveDataHandler.initSave();
@@ -227,9 +229,9 @@ class TitleState extends MusicBeatState
 			FlxG.fullscreen = !FlxG.fullscreen;
 		}
 
-		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER;
+		var pressedEnter:Bool = #if android controls.ACCEPT #else FlxG.keys.justPressed.ENTER #end;
 
-		#if mobile
+		#if (mobile && !android)
 		for (touch in FlxG.touches.list)
 		{
 			if (touch.justPressed)
@@ -272,9 +274,7 @@ class TitleState extends MusicBeatState
 
 			new FlxTimer().start(2, function(tmr:FlxTimer)
 			{
-
 				FlxG.switchState(OutdatedSubState.leftState ? new MainMenuState() : new OutdatedSubState());
-
 			});
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 		}
@@ -339,11 +339,11 @@ class TitleState extends MusicBeatState
 
 		FlxG.log.add(curBeat);
 
-		switch (curBeat) //cyndaquil do NOT change this back, if you do i'll end you
+		switch (curBeat) // cyndaquil do NOT change this back, if you do i'll end you
 		{
 			case 1:
-			createCoolText(['BRUH']);
-				//createCoolText(['MoldyGH', 'Rapparep', 'Krisspo', 'TheBuilderXD']);
+				createCoolText(['BRUH']);
+			// createCoolText(['MoldyGH', 'Rapparep', 'Krisspo', 'TheBuilderXD']);
 			// credTextShit.visible = true;
 			case 2:
 				addMoreText('MoldyGH');

@@ -1,5 +1,18 @@
 package;
 
+#if android
+// Local scores remain available; this legacy Newgrounds client rejects mobile targets.
+class NGio
+{
+	public static function unlockMedal(id:Int):Void
+	{
+	}
+
+	public static function postScore(score:Int, board:String):Void
+	{
+	}
+}
+#else
 import flixel.FlxG;
 import flixel.util.FlxSignal;
 import flixel.util.FlxTimer;
@@ -198,3 +211,4 @@ class NGio
 		}
 	}
 }
+#end

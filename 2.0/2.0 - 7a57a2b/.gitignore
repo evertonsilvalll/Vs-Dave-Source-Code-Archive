@@ -3,3 +3,7 @@ export/
 APIStuff.hx
 assets/preload/data/outrage/
 assets/songs/outrage/
+android-assets/
+.venv/
+.haxelib/
+__pycache__/

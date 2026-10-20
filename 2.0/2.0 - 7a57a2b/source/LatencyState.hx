@@ -39,6 +39,13 @@ class LatencyState extends FlxState
 
 	override function update(elapsed:Float)
 	{
+		if (PlayerSettings.player1.controls.BACK)
+		{
+			FlxG.sound.playMusic(Paths.music("freakyMenu"));
+			FlxG.switchState(new OptionsMenu());
+			return;
+		}
+
 		offsetText.text = "Offset: " + Conductor.offset + "ms";
 
 		Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
@@ -48,12 +55,12 @@ class LatencyState extends FlxState
 		if (FlxG.keys.pressed.SHIFT)
 			multiply = 10;
 
-		if (FlxG.keys.justPressed.RIGHT)
+		if (PlayerSettings.player1.controls.RIGHT_P)
 			Conductor.offset += 1 * multiply;
-		if (FlxG.keys.justPressed.LEFT)
+		if (PlayerSettings.player1.controls.LEFT_P)
 			Conductor.offset -= 1 * multiply;
 
-		if (FlxG.keys.justPressed.SPACE)
+		if (PlayerSettings.player1.controls.ACCEPT)
 		{
 			FlxG.sound.music.stop();
 
