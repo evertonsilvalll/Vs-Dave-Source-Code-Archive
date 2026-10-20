@@ -179,7 +179,7 @@ class PlayState extends MusicBeatState
 	public static var theFunne:Bool = true;
 
 	var funneEffect:FlxSprite;
-	var inCutscene:Bool = false;
+	public var inCutscene:Bool = false;
 
 	public static var timeCurrently:Float = 0;
 	public static var timeCurrentlyR:Float = 0;
@@ -1284,6 +1284,10 @@ class PlayState extends MusicBeatState
 
 	function schoolIntro(?dialogueBox:DialogueBox):Void
 	{
+		#if android
+		// Every story dialogue needs A/B, including the Dave/Bambi intros.
+		inCutscene = dialogueBox != null;
+		#end
 		camFollow.setPosition(boyfriend.getGraphicMidpoint().x - 200, dad.getGraphicMidpoint().y - 10);
 		var black:FlxSprite = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
 		black.scrollFactor.set();
@@ -2089,6 +2093,7 @@ class PlayState extends MusicBeatState
 				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 		}
 
+		#if !android
 		if (FlxG.keys.justPressed.SEVEN)
 		{
 			if (curSong.toLowerCase() == 'supernovae' || curSong.toLowerCase() == 'glitch')
@@ -2107,6 +2112,8 @@ class PlayState extends MusicBeatState
 			FlxG.switchState(new ChartingState());
 			DiscordClient.changePresence("Chart Editor", null, null, true);
 		}
+
+		#end
 
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
@@ -2138,7 +2145,7 @@ class PlayState extends MusicBeatState
 		/* if (FlxG.keys.justPressed.NINE)
 			FlxG.switchState(new Charting()); */
 
-		#if debug
+		#if (debug && !android)
 		if (FlxG.keys.justPressed.EIGHT)
 			FlxG.switchState(new AnimationDebug(SONG.player2));
 		#end
@@ -2500,12 +2507,12 @@ class PlayState extends MusicBeatState
 		if (!inCutscene)
 			keyShit();
 
-		#if debug
+		#if (debug && !android)
 		if (FlxG.keys.justPressed.ONE)
 			endSong();
 		#end
 
-		#if debug
+		#if (debug && !android)
 		if (FlxG.keys.justPressed.TWO)
 		{
 			BAMBICUTSCENEICONHURHURHUR = new HealthIcon("bambi", false);

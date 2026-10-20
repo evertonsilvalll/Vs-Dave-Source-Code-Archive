@@ -5,18 +5,18 @@ import flixel.FlxG;
 import flixel.FlxState;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Touch;
+import openfl.Assets;
 import openfl.Lib;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
 import openfl.display.Sprite;
 import openfl.events.Event;
-import openfl.events.TouchEvent;
+import openfl.geom.ColorTransform;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
-import openfl.text.TextField;
-import openfl.text.TextFormat;
-import openfl.ui.Multitouch;
-import openfl.ui.MultitouchInputMode;
 
-/** Android overlay, independent of cameras so menus, dialogue and substates can use it. */
+/** Camera-independent Psych mobile pad and optional four-lane hitbox. */
 class MobileControls extends Sprite
 {
 	public static var instance(default, null):MobileControls;
@@ -27,37 +27,47 @@ class MobileControls extends Sprite
 	public static inline var ACCEPT:Int = 4;
 	public static inline var BACK:Int = 5;
 	public static inline var PAUSE:Int = 6;
-
 	static inline var BACK_POINTER:Int = -1000;
 
 	var input:MobileInputState = new MobileInputState(7);
+	var layout:MobileControlLayout = new MobileControlLayout();
 	var buttons:Array<Sprite> = [];
-	var areas:Array<Rectangle> = [];
+	var normalFrames:Array<Bitmap> = [];
+	var pressedFrames:Array<Bitmap> = [];
+	var lanes:Array<Sprite> = [];
+	var colors:Array<Int> = [0xFF00FF, 0x00FFFF, 0x00FF00, 0xFF0000, 0xFF0000, 0xFFCB00, 0xFFFFFF];
 	var context:FlxState;
 	var gameplay:Bool = false;
+	var hitbox:Bool = false;
 
 	public function new()
 	{
 		super();
 		instance = this;
-		mouseEnabled = false;
-		mouseChildren = false;
-		addButton("<", 28, 548, 184, 144);
-		addButton("v", 232, 548, 184, 144);
-		addButton("^", 864, 548, 184, 144);
-		addButton(">", 1068, 548, 184, 144);
-		addButton("OK", 1072, 24, 180, 88);
-		addButton("BACK", 868, 24, 180, 88);
-		addButton("PAUSE", 868, 24, 180, 88);
-		Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
+		mouseEnabled = mouseChildren = false;
+		for (i in 0...4)
+		{
+			var lane = new Sprite();
+			lane.graphics.lineStyle(2, colors[i], 0.8);
+			lane.graphics.beginFill(colors[i], 0.18);
+			lane.graphics.drawRect(i * 320 + 1, 1, 318, 718);
+			lane.graphics.endFill();
+			addChild(lane);
+			lanes.push(lane);
+		}
+		var names = ["left", "down", "up", "right", "a", "b", "pauseButton"];
+		for (i in 0...names.length)
+			addButton(names[i], i);
+
+		// Native events avoid display-list propagation/focus swallowing a release.
+		// Cancellation must release the lane just like lifting a finger.
+		Touch.onStart.add(onTouchBegin);
+		Touch.onMove.add(onTouchMove);
+		Touch.onEnd.add(onTouchEnd);
+		Touch.onCancel.add(onTouchEnd);
 		var stage = Lib.current.stage;
-		stage.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin);
-		stage.addEventListener(TouchEvent.TOUCH_MOVE, onTouchMove);
-		stage.addEventListener(TouchEvent.TOUCH_END, onTouchEnd);
 		stage.addEventListener(Event.DEACTIVATE, onDeactivate);
 		stage.addEventListener(Event.RESIZE, onResize);
-		// Lime's Android default backgrounds the application on BACK key-up.
-		// Cancel both native events before OpenFL translates them into keyboard input.
 		Lib.application.window.onKeyDown.add(onBackDown, false, 1000);
 		Lib.application.window.onKeyUp.add(onBackUp, false, 1000);
 		FlxG.signals.preUpdate.add(updateInput);
@@ -65,26 +75,29 @@ class MobileControls extends Sprite
 		onResize(null);
 	}
 
-	function addButton(label:String, x:Float, y:Float, width:Float, height:Float):Void
+	function frame(source:BitmapData, rect:Rectangle, color:Int):Bitmap
 	{
+		var data = new BitmapData(Std.int(rect.width), Std.int(rect.height), true, 0);
+		data.copyPixels(source, rect, new Point());
+		var bitmap = new Bitmap(data);
+		bitmap.smoothing = true;
+		bitmap.transform.colorTransform = new ColorTransform(((color >> 16) & 255) / 255, ((color >> 8) & 255) / 255, (color & 255) / 255);
+		return bitmap;
+	}
+
+	function addButton(name:String, id:Int):Void
+	{
+		var source = Assets.getBitmapData('assets/mobile/' + name + '.png');
+		var width = Std.int(source.width / 3);
+		var normal = frame(source, id == PAUSE ? new Rectangle(0, 0, 101, 93) : new Rectangle(0, 0, width, source.height), colors[id]);
+		var pressed = frame(source, id == PAUSE ? new Rectangle(106, 0, 87, 81) : new Rectangle(width * 2, 0, width, source.height), colors[id]);
 		var button = new Sprite();
-		button.x = x;
-		button.y = y;
-		button.graphics.lineStyle(3, 0xFFFFFF, 0.8);
-		button.graphics.beginFill(0x111111, 0.6);
-		button.graphics.drawRoundRect(0, 0, width, height, 20, 20);
-		button.graphics.endFill();
-		var text = new TextField();
-		text.defaultTextFormat = new TextFormat("_sans", label.length == 1 ? 60 : 28, 0xFFFFFF, true, null, null, null, null, "center");
-		text.text = label;
-		text.width = width;
-		text.height = height;
-		text.y = (height - (label.length == 1 ? 78 : 40)) / 2;
-		text.selectable = false;
-		button.addChild(text);
+		button.addChild(normal);
+		button.addChild(pressed);
 		addChild(button);
 		buttons.push(button);
-		areas.push(new Rectangle(x, y, width, height));
+		normalFrames.push(normal);
+		pressedFrames.push(pressed);
 	}
 
 	function onResize(event:Event):Void
@@ -96,20 +109,24 @@ class MobileControls extends Sprite
 		clear();
 	}
 
-	/** Clear even between getters if a state opens/closes a substate during update. */
 	function syncContext():Void
 	{
 		var current:FlxState = FlxG.state;
 		while (current != null && current.subState != null)
 			current = current.subState;
-		if (current != context)
+		var playing = Std.isOfType(FlxG.state, PlayState) && FlxG.state.subState == null;
+		// Dialogue still needs A/B, including when hitbox is selected for songs.
+		if (playing && cast(FlxG.state, PlayState).inCutscene)
+			playing = false;
+		var useHitbox = playing && FlxG.save.data.mobileHitbox == true;
+		if (current != context || playing != gameplay || useHitbox != hitbox)
 		{
 			context = current;
+			gameplay = playing;
+			hitbox = useHitbox;
+			layout.configure(gameplay, hitbox);
 			clear();
 		}
-		gameplay = Std.isOfType(FlxG.state, PlayState) && FlxG.state.subState == null;
-		buttons[BACK].visible = !gameplay;
-		buttons[PAUSE].visible = gameplay;
 	}
 
 	function updateInput():Void
@@ -117,33 +134,50 @@ class MobileControls extends Sprite
 		syncContext();
 		input.nextFrame();
 		for (i in 0...buttons.length)
-			buttons[i].alpha = input.held[i] ? 1 : 0.65;
+		{
+			var area = layout.areas[i];
+			buttons[i].visible = layout.active[i] && !(hitbox && i < 4);
+			buttons[i].x = area.x;
+			buttons[i].y = area.y;
+			for (bitmap in [normalFrames[i], pressedFrames[i]])
+			{
+				bitmap.width = area.width;
+				bitmap.height = area.height;
+			}
+			normalFrames[i].visible = !input.held[i];
+			pressedFrames[i].visible = input.held[i];
+			buttons[i].alpha = input.held[i] ? 0.9 : 0.55;
+		}
+		for (i in 0...4)
+		{
+			// Drawing is independent of hit testing: invisible lanes still work.
+			lanes[i].visible = hitbox && FlxG.save.data.visibleHitbox != false;
+			lanes[i].alpha = input.held[i] ? 0.8 : 0.18;
+		}
 	}
 
-	function hit(event:TouchEvent):Int
+	function hit(touch:Touch):Int
 	{
-		var point = globalToLocal(new Point(event.stageX, event.stageY));
-		for (i in 0...areas.length)
-			if (buttons[i].visible && areas[i].contains(point.x, point.y))
-				return i;
-		return -1;
+		var stage = Lib.current.stage;
+		var point = globalToLocal(new Point(touch.x * stage.stageWidth, touch.y * stage.stageHeight));
+		return layout.hit(point.x, point.y);
 	}
 
-	function onTouchBegin(event:TouchEvent):Void
+	function onTouchBegin(touch:Touch):Void
 	{
 		syncContext();
-		input.begin(event.touchPointID, hit(event));
+		input.beginTouch(touch.id, hit(touch));
 	}
 
-	function onTouchMove(event:TouchEvent):Void
+	function onTouchMove(touch:Touch):Void
 	{
 		syncContext();
-		input.move(event.touchPointID, hit(event));
+		input.move(touch.id, hit(touch));
 	}
 
-	function onTouchEnd(event:TouchEvent):Void
+	function onTouchEnd(touch:Touch):Void
 	{
-		input.end(event.touchPointID);
+		input.end(touch.id);
 	}
 
 	function onBackDown(key:KeyCode, modifier:KeyModifier):Void
@@ -165,8 +199,6 @@ class MobileControls extends Sprite
 
 	function onDeactivate(event:Event):Void
 	{
-		// Android may cancel touches without delivering TOUCH_END on focus loss.
-		// Discard their IDs so the next fresh TOUCH_BEGIN can reuse them.
 		input.clear(false);
 	}
 
@@ -175,7 +207,7 @@ class MobileControls extends Sprite
 		input.clear();
 	}
 
-	/** mode: 0 = held, 1 = just pressed, 2 = just released. Reads never consume edges. */
+	/** Reads never consume edges; several game systems may query one frame. */
 	public static function check(button:Int, mode:Int):Bool
 	{
 		if (instance == null)
@@ -190,6 +222,92 @@ class MobileControls extends Sprite
 	}
 }
 #end
+
+/** Logical geometry is shared by rendering and input, independent of visibility. */
+class MobileControlLayout
+{
+	public var areas(default, null):Array<{
+		x:Float,
+		y:Float,
+		width:Float,
+		height:Float
+	}>;
+	public var active(default, null):Array<Bool>;
+
+	public function new()
+	{
+		configure(false, false);
+	}
+
+	public function configure(gameplay:Bool, hitbox:Bool):Void
+	{
+		areas = [
+			{
+				x: 0.,
+				y: 456.,
+				width: 132.,
+				height: 132.
+			},
+			{
+				x: 132.,
+				y: 588.,
+				width: 132.,
+				height: 132.
+			},
+			{
+				x: 132.,
+				y: 324.,
+				width: 132.,
+				height: 132.
+			},
+			{
+				x: 264.,
+				y: 456.,
+				width: 132.,
+				height: 132.
+			},
+			{
+				x: 1148.,
+				y: 585.,
+				width: 132.,
+				height: 132.
+			},
+			{
+				x: 1016.,
+				y: 585.,
+				width: 132.,
+				height: 132.
+			},
+			{
+				x: 1158.,
+				y: 24.,
+				width: 98.,
+				height: 90.
+			}
+		];
+		active = [true, true, true, true, !gameplay, !gameplay, gameplay];
+		if (gameplay && hitbox)
+			for (i in 0...4)
+				areas[i] = {
+					x: i * 320.,
+					y: 0.,
+					width: 320.,
+					height: 720.
+				};
+	}
+
+	public function hit(x:Float, y:Float):Int
+	{
+		// Pause wins over the right-hand hitbox; a pause touch never plays a note.
+		for (i in [6, 4, 5, 0, 1, 2, 3])
+		{
+			var a = areas[i];
+			if (active[i] && x >= a.x && x < a.x + a.width && y >= a.y && y < a.y + a.height)
+				return i;
+		}
+		return -1;
+	}
+}
 
 /** Pure input accumulator: several fingers may hold the same button without false releases. */
 class MobileInputState
@@ -211,6 +329,13 @@ class MobileInputState
 		released = held.copy();
 		pendingPress = held.copy();
 		pendingRelease = held.copy();
+	}
+
+	/** A native start is a new contact, even when Android reuses an interrupted ID. */
+	public function beginTouch(pointer:Int, button:Int):Void
+	{
+		end(pointer);
+		begin(pointer, button);
 	}
 
 	public function begin(pointer:Int, button:Int):Void

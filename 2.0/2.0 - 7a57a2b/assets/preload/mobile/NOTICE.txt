@@ -1,0 +1,6 @@
+Mobile control graphics from FunkinPortingMobile/Psych-Engine-0.7.3-Mobile
+https://github.com/FunkinPortingMobile/Psych-Engine-0.7.3-Mobile
+Commit: 08339535b33d6cc5643ad2acf47df932c094ef30
+Copyright belongs to the original Psych Engine and mobile port contributors.
+Distributed under Apache License 2.0; see LICENSE.txt.
+PNG files are unmodified. This port crops their button frames at runtime.

@@ -13,13 +13,24 @@ The legacy native libraries are intended for devices using 4 KB memory pages;
 16 KB-only devices are not supported by this pinned Lime toolchain.
 Physical-device compatibility and performance must be checked before a release.
 
-- Bottom arrows: navigate menus or play notes; simultaneous and held touches work.
-- **OK**: confirm, advance dialogue, retry, or leave an ending.
-- **BACK**: return or choose no on the initial shader warning.
-- **PAUSE**: pause gameplay. Android's Back button pauses during gameplay and
-  acts as BACK in menus.
-- On the first warning, **OK** enables the visual effects and **BACK** disables
-  them. The Eyesores option can change this later.
+- The colored Psych Engine 0.7.3 mobile D-pad navigates menus and plays notes.
+- **A** confirms, advances dialogue, retries, or leaves an ending. **B** goes
+  back or chooses no on the initial shader warning.
+- The Psych pause icon at the top right pauses a song. Android Back also pauses;
+  in menus it acts as B. Pause menus and dialogue always restore the D-pad/A/B.
+- In **Options**, select **Mobile Psych Pad** and press A to switch to
+  **Mobile Hitbox**: four full-height lanes, left/down/up/right. Press A on
+  **Hitbox Visible** to switch to **Hitbox Invisible**. Invisible lanes keep
+  exactly the same touch regions. The pause icon remains visible in either mode
+  and its touch region takes priority over the right lane.
+- On the first warning, **A** enables visual effects and **B** disables them.
+  The Eyesores option can change this later. Settings persist in the app save.
+
+The debugger and song editor/debug shortcuts are disabled on Android, including
+in debug-signed APKs. Touch input reads native Lime start/move/end/cancel events;
+fresh starts can recover reused Android pointer IDs after an interrupted release.
+Several fingers, held notes and slides are supported. A finger already held at a
+state/pause transition stays blocked until lifted, avoiding accidental menu input.
 
 The game uses a 1280×720 logical viewport in landscape, letterboxed on wider
 screens, and 60 FPS. The on-screen buttons stay outside the game cameras so
@@ -101,7 +112,8 @@ python -m unittest discover -s tools -p 'test_prepare_android_assets.py'
 ```
 
 The touch tests cover chords, sustain releases, slides, fast taps, multiple
-fingers on one button, state transitions, and interrupted touches. Atlas tests
+fingers on one button, state transitions, interrupted/reused touch IDs, menu and
+hitbox geometry, letterboxing and pause priority. Atlas tests
 check metadata/pixel preservation, deterministic output and invalid inputs.
 Run the repository's Haxe formatter on changed Haxe files:
 `haxelib run formatter -s path/to/ChangedFile.hx`.
@@ -113,3 +125,11 @@ Before distributing a release, test on actual ARMv7 and ARM64 devices:
 - Pause/resume, retry, Back, switching apps mid-song and returning.
 - All mod weeks, the OST menu, cutscene-to-song transitions and endings.
 - Aspect ratios with letterboxing, sound synchronization, memory and long sessions.
+
+## Mobile graphics attribution
+
+The unmodified PNGs in `assets/preload/mobile/` come from the active
+[FunkinPortingMobile/Psych-Engine-0.7.3-Mobile](https://github.com/FunkinPortingMobile/Psych-Engine-0.7.3-Mobile)
+port. The pinned source revision, attribution and Apache 2.0 license are included
+in that directory and packaged with the Android assets. The overlay crops their
+normal/pressed frames at runtime. No engine upgrade is implied by these controls.
