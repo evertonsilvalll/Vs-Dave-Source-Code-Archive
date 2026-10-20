@@ -23,6 +23,11 @@ Physical-device compatibility and performance must be checked before a release.
   **Hitbox Visible** to switch to **Hitbox Invisible**. Invisible lanes keep
   exactly the same touch regions. The pause icon remains visible in either mode
   and its touch region takes priority over the right lane.
+- **Middlescroll On** centers the four player lanes and puts dimmed opponent
+  lanes at the sides. Tap and sustain notes follow the same receptor layout.
+- **Ghost Tapping On** (default) ignores presses with no hittable note in that
+  lane. Turning it off penalizes empty presses. Letting notes pass still loses
+  health; this option does not enable autoplay. Both settings persist.
 - On the first warning, **A** enables visual effects and **B** disables them.
   The Eyesores option can change this later. Settings persist in the app save.
 
@@ -108,6 +113,7 @@ mod weeks use shared assets instead of nonexistent week libraries.
 
 ```sh
 bash tests/test-mobile-input.sh
+bash tests/test-gameplay-rules.sh
 python -m unittest discover -s tools -p 'test_prepare_android_assets.py'
 ```
 
@@ -133,3 +139,23 @@ The unmodified PNGs in `assets/preload/mobile/` come from the active
 port. The pinned source revision, attribution and Apache 2.0 license are included
 in that directory and packaged with the Android assets. The overlay crops their
 normal/pressed frames at runtime. No engine upgrade is implied by these controls.
+
+## Gameplay and character optimizations
+
+- Only Insanity loads the hidden 3D mirror character. Its 4096x4096 texture is
+  64 MiB of decoded RGBA pixels before any GPU copy; other songs no longer load
+  it unless their selected character itself uses that texture.
+- Splitathon/Insanity events execute in the once-per-step callback instead of
+  repeating character creation, sounds and atlas changes on every frame.
+- Replaced characters and unspawned notes are destroyed on replacement/state
+  exit. Preloaded graphics belong to a state-owned inactive group and support
+  the repacked Android atlases.
+- Note matching uses one pass over hittable notes and preserves stacked notes
+  with equal timestamps. Spawning drains all due notes using a cursor rather
+  than shifting the entire song array for every note. Score text formatting
+  runs only when the score, miss count or accuracy changes.
+
+These changes preserve texture resolution and animation frames. They are code
+optimizations, not measured device FPS or peak-memory guarantees. Test long
+songs, pause/retry, all character changes, stacked notes, both scroll directions
+and each combination of Middlescroll/Ghost Tapping on an Android device.

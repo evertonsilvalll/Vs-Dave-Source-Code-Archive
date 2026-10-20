@@ -50,6 +50,7 @@ jobs:
       - name: Test touch input and atlas conversion
         run: |
           bash tests/test-mobile-input.sh
+          bash tests/test-gameplay-rules.sh
           python -m unittest discover -s tools -p 'test_prepare_android_assets.py'
       - name: Build signed debug APK
         run: |

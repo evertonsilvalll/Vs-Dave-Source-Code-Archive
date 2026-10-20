@@ -106,10 +106,14 @@ class OptionsMenu extends MusicBeatState
 					FlxG.save.data.eyesores = !FlxG.save.data.eyesores;
 				case 5:
 					FlxG.save.data.donoteclick = !FlxG.save.data.donoteclick;
-				#if android
 				case 6:
-					FlxG.save.data.mobileHitbox = !FlxG.save.data.mobileHitbox;
+					FlxG.save.data.middlescroll = !FlxG.save.data.middlescroll;
 				case 7:
+					FlxG.save.data.ghostTapping = !FlxG.save.data.ghostTapping;
+				#if android
+				case 8:
+					FlxG.save.data.mobileHitbox = !FlxG.save.data.mobileHitbox;
+				case 9:
 					FlxG.save.data.visibleHitbox = !FlxG.save.data.visibleHitbox;
 				#end
 			}
@@ -134,7 +138,9 @@ class OptionsMenu extends MusicBeatState
 			FlxG.save.data.downscroll ? 'Downscroll' : 'Upscroll',
 			'Accuracy ' + (FlxG.save.data.accuracyDisplay ? 'off' : 'on'),
 			FlxG.save.data.eyesores ? 'Eyesores Enabled' : 'Eyesores Disabled',
-			FlxG.save.data.donoteclick ? 'Hitsounds On' : 'Hitsounds Off'
+			FlxG.save.data.donoteclick ? 'Hitsounds On' : 'Hitsounds Off',
+			FlxG.save.data.middlescroll ? 'Middlescroll On' : 'Middlescroll Off',
+			FlxG.save.data.ghostTapping ? 'Ghost Tapping On' : 'Ghost Tapping Off'
 		];
 		#if android
 		labels.push(FlxG.save.data.mobileHitbox ? 'Mobile Hitbox' : 'Mobile Psych Pad');

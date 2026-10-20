@@ -11,6 +11,11 @@ class SaveDataHandler
 {
 	public static function initSave()
 	{
+		if (FlxG.save.data.middlescroll == null)
+			FlxG.save.data.middlescroll = false;
+		if (FlxG.save.data.ghostTapping == null)
+			FlxG.save.data.ghostTapping = true;
+
 		#if android
 		if (FlxG.save.data.mobileHitbox == null)
 			FlxG.save.data.mobileHitbox = false;
